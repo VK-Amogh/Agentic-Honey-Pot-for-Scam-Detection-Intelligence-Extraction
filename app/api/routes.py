@@ -40,6 +40,9 @@ def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool
                     "upiIds": intelligence_data["upiIds"],
                     "phishingLinks": intelligence_data["phishingLinks"],
                     "phoneNumbers": intelligence_data["phoneNumbers"],
+                    "ifscCodes": intelligence_data.get("ifscCodes", []),
+                    "panNumbers": intelligence_data.get("panNumbers", []),
+                    "cryptoWallets": intelligence_data.get("cryptoWallets", []),
                     "suspiciousKeywords": intelligence_data["suspicious_keywords"]
                 },
                 "agentNotes": agent.get_agent_notes(request_data.sessionId)

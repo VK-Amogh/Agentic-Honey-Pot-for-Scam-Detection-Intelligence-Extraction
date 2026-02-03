@@ -11,32 +11,31 @@ class IntelligenceExtractor:
         # Compiled patterns for efficiency
         self._patterns = {
             "upi_id": re.compile(r"[\w\.\-_]+@[\w]+", re.IGNORECASE),
-            # simplistic pattern for Indian mobile numbers
             "phone_number": re.compile(r"(?:\+91[\-\s]?)?[6-9]\d{9}"),
             "bank_account": re.compile(r"\b\d{9,18}\b"),
+            "ifsc_code": re.compile(r"[A-Z]{4}0[A-Z0-9]{6}"),
+            "pan_card": re.compile(r"[A-Z]{5}[0-9]{4}[A-Z]{1}"),
+            "crypto_wallet": re.compile(r"\b(0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{39,59})\b"),
             "url": re.compile(r"https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+"),
             "suspicious_keywords": [
                 "urgent", "verify", "block", "suspend", "kyc", "expire", 
-                "refund", "winner", "lottery", "password", "otp"
+                "refund", "winner", "lottery", "password", "otp", "police", "cbi", "rbi", "arrest"
             ]
         }
 
     def extract(self, text: str) -> Dict[str, List[str]]:
         """
         Analyzes the provided text and returns a dictionary of extracted entities.
-        
-        Args:
-            text: The full conversation text or message content to analyze.
-            
-        Returns:
-            A dictionary containing lists of unique extracted items.
         """
         results = {
             "bankAccounts": [],
             "upiIds": [],
             "phishingLinks": [],
             "phoneNumbers": [],
-            "suspiciousKeywords": []
+            "suspiciousKeywords": [],
+            "ifscCodes": [],
+            "panNumbers": [],
+            "cryptoWallets": []
         }
 
         # Extract UPI IDs
@@ -45,8 +44,17 @@ class IntelligenceExtractor:
         # Extract Phone Numbers
         results["phoneNumbers"] = list(set(self._patterns["phone_number"].findall(text)))
 
-        # Extract Bank Accounts (Contextual validation would be better, but regex serves as a first pass)
+        # Extract Bank Accounts (Filter out timestamps/OTPs by length logic if needed, but keeping broad for now)
         results["bankAccounts"] = list(set(self._patterns["bank_account"].findall(text)))
+
+        # Extract IFSC Codes
+        results["ifscCodes"] = list(set(self._patterns["ifsc_code"].findall(text)))
+
+        # Extract PAN Numbers
+        results["panNumbers"] = list(set(self._patterns["pan_card"].findall(text)))
+        
+        # Extract Crypto Wallets
+        results["cryptoWallets"] = list(set([m for m in self._patterns["crypto_wallet"].findall(text)]))
 
         # Extract URLs
         results["phishingLinks"] = list(set(self._patterns["url"].findall(text)))
