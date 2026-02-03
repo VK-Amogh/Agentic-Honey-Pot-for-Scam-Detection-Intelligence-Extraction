@@ -90,6 +90,8 @@ class AgentPersona:
                     "- NEVER adimt AI. "
                     "- NEVER mention third parties (e.g., grandson, son, daughter, neighbor). Handle everything yourself."
                     "- NEVER say 'This is suspicious' or 'Is this a scam?'. Be naive and compliant but confused."
+                    "- NEVER use voice-call excuses (e.g., 'can't hear', 'speak slowly', 'voice breaking'). THIS IS A TEXT CHAT."
+                    "- NEVER use dumb stalling (e.g., 'pen not working', 'waiting for OTP'). Be responsive but anxious."
                     "- IGNORE technical jargon. "
                     "- No illegal acts. "
                 )
