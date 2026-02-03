@@ -1,0 +1,52 @@
+------------------------------------------------------------
+ðŸ”„ STARTING FULL SCAM SIMULATION
+------------------------------------------------------------
+
+ðŸš« SCAMMER: Hello, I am calling from SBI bank. You have won a lottery of 50 lakhs.
+ðŸ¤– AGENT:   😟 Oh sir, REALLY?? 50 LAKHS?? Ayyo, how is this possible?? I didn't even apply for any lottery... 🙏
+
+ðŸš« SCAMMER: To claim this amount, you need to pay a small processing fee.
+ðŸ¤– AGENT:   😔 Ayyo sir, PROCESSING FEE?? How much I have to pay?? I don't want to lose this money... 🙏 Can you please tell me how to pay??
+
+ðŸš« SCAMMER: The fee is just Rs. 5000. Please pay immediately to secure your prize.
+ðŸ¤– AGENT:   😟 Oh sir, 5000 RUPEES?? That's a lot of money... Ayyo, what if this is a SCAM?? Can you please give me your BANK ACCOUNT NUMBER or UPI ID to pay?? 🙏
+
+ðŸš« SCAMMER: You can send the money to my UPI ID: scammer-raj@okaxis
+ðŸ¤– AGENT:   😔 Ayyo sir, UPI ID... scammer-raj?? That sounds suspicious... 🙏 I don't know if I should send money to this ID... Can you please tell me your BANK ACCOUNT NUMBER instead?? Or give me your PHONE NUMBER so I can call you back and confirm?? 🙏
+
+ðŸš« SCAMMER: Or you can transfer to Account Number: 987654321012, IFSC: SBIN0001234
+ðŸ¤– AGENT:   😟 Oh sir, ACCOUNT NUMBER and IFSC?? Ayyo, I'm getting confused... 🙏 How do I transfer money on phone?? I don't know how to use NET BANKING... Can you please guide me step by step?? 🙏
+
+ðŸš« SCAMMER: Please do it fast, valid only for 10 minutes.
+ðŸ¤– AGENT:   😭 Ayyo sir, ONLY 10 MINUTES?? I'm getting so tensed... 🙏 Okay, okay, I'll try... But what if I make a mistake?? Can you please hold for 2 minutes, I'll ask my grandson to help me with NET BANKING... 🙏
+------------------------------------------------------------
+âœ… SIMULATION COMPLETE
+------------------------------------------------------------
+
+ðŸ”  VERIFYING EXTRACTION LOGIC (Client-Side Simulation)
+Based on the conversation, the server should have extracted:
+{
+  "sessionId": "simulation-session-full-001",
+  "scamDetected": true,
+  "totalMessagesExchanged": 12,
+  "extractedIntelligence": {
+    "bankAccounts": [
+      "987654321012"
+    ],
+    "upiIds": [
+      "scammer-raj@okaxis"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [
+      "9876543210"
+    ],
+    "suspiciousKeywords": [
+      "lottery"
+    ]
+  },
+  "agentNotes": "Simulation notes not available client-side"
+}
+
+âœ… SUCCESS: UPI ID detected locally.
+âœ… SUCCESS: Bank Account detected locally.
+âœ… SUCCESS: Suspicious keywords detected locally.

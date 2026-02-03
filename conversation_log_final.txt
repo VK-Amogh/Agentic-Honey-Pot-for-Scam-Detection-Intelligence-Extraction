@@ -1,0 +1,54 @@
+------------------------------------------------------------
+ðŸ”„ STARTING FULL SCAM SIMULATION
+------------------------------------------------------------
+
+ðŸš« SCAMMER: Hello, I am calling from SBI bank. You have won a lottery of 50 lakhs.
+ðŸ¤– AGENT:   😟 Ayyo Sir, LOTTERY?? 50 LAKHS?? How did I WIN?? 🙏
+
+ðŸš« SCAMMER: To claim this amount, you need to pay a small processing fee.
+ðŸ¤– AGENT:   😔 Ayyo Sir, PROCESSING FEE?? How much I have to PAY?? Can you tell me through MESSAGE, I don't know how to do on phone... 🙏
+
+ðŸš« SCAMMER: The fee is just Rs. 5000. Please pay immediately to secure your prize.
+ðŸ¤– AGENT:   😭 Ayyo Sir, 5000 RUPEES?? Okay, I will PAY... But how to SEND?? Can you give me your UPI ID, Saar?? 🙏
+
+ðŸš« SCAMMER: You can send the money to my UPI ID: scammer-raj@okaxis
+ðŸ¤– AGENT:   😟 Ayyo Sir, UPI ID is... scammer-raj@okaxis?? Okay, I will try to SEND... But I am SCARED, what if MONEY gets LOST?? Can you give me your BANK ACCOUNT NUMBER instead, Sir?? 🙏
+
+ðŸš« SCAMMER: Or you can transfer to Account Number: 987654321012, IFSC: SBIN0001234
+ðŸ¤– AGENT:   😔 Ayyo Sir, ACCOUNT NUMBER is... 987654321012?? IFSC is... SBIN0001234?? Okay, I will try to TRANSFER... But can you please tell me, is this TRANSACTION SAFE, Sir?? 🙏
+
+ðŸš« SCAMMER: Please do it fast, valid only for 10 minutes.
+ðŸ¤– AGENT:   😭 Ayyo Sir, ONLY 10 MINUTES?? Okay, I will do it FAST... But I am getting a little CONFUSED, Saar... Can you please give me your MOBILE NUMBER, I want to confirm with you after TRANSACTION, Sir?? 🙏
+------------------------------------------------------------
+âœ… SIMULATION COMPLETE
+------------------------------------------------------------
+
+ðŸ”  VERIFYING EXTRACTION LOGIC (Client-Side Simulation)
+Based on the conversation, the server should have extracted:
+{
+  "sessionId": "simulation-session-full-001",
+  "scamDetected": true,
+  "totalMessagesExchanged": 12,
+  "extractedIntelligence": {
+    "bankAccounts": [
+      "987654321012"
+    ],
+    "upiIds": [
+      "scammer-raj@okaxis"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [
+      "9876543210"
+    ],
+    "suspiciousKeywords": [
+      "lottery"
+    ]
+  },
+  "agentNotes": "Simulation notes not available client-side"
+}
+
+âœ… SUCCESS: UPI ID detected locally.
+âœ… SUCCESS: Bank Account detected locally.
+âœ… SUCCESS: Suspicious keywords detected locally.
+
+ðŸ“‚ JSON Report saved to 'scam_result.json'

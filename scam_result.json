@@ -1,0 +1,21 @@
+{
+  "sessionId": "simulation-session-full-001",
+  "scamDetected": true,
+  "totalMessagesExchanged": 12,
+  "extractedIntelligence": {
+    "bankAccounts": [
+      "987654321012"
+    ],
+    "upiIds": [
+      "scammer-raj@okaxis"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [
+      "9876543210"
+    ],
+    "suspiciousKeywords": [
+      "lottery"
+    ]
+  },
+  "agentNotes": "Simulation notes not available client-side"
+}
