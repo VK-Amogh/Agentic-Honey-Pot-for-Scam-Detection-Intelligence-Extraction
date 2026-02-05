@@ -117,5 +117,37 @@ class AgentPersona:
             logger.error(f"Error generating response: {str(e)}")
             return "I am not sure I understand. Can you explain again?"
 
-    def get_agent_notes(self, session_id: str) -> str:
-        return f"Agent engaged in session {session_id}."
+    def get_agent_notes(self, session_id: str, history: List[Dict] = None) -> str:
+        """
+        Generates a summary of the agent's reasoning and the conversation flow using the LLM.
+        """
+        if not history:
+             return f"Agent engaged in session {session_id}."
+        
+        try:
+            transcript = ""
+            for msg in history:
+                 role = getattr(msg, "sender", "unknown")
+                 text = getattr(msg, "text", "")
+                 transcript += f"{role}: {text}\n"
+
+            prompt = (
+                f"Analyze the following conversation from the perspective of a cybersecurity baiting agent.\n"
+                f"Session ID: {session_id}\n\n"
+                f"TRANSCRIPT:\n{transcript}\n\n"
+                f"Provide a brief 'Agent Reasoning' summary (max 2 sentences). "
+                f"Explain how the agent engaged the scammer, what techniques were used (e.g., feigning ignorance, wasting time), "
+                f"and the outcome."
+            )
+
+            completion = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.5,
+                max_tokens=60,
+                stream=False
+            )
+            return completion.choices[0].message.content.strip()
+        except Exception as e:
+            logger.error(f"Error generating agent notes: {str(e)}")
+            return f"Agent engaged in session {session_id}. (Summary unavailable due to error)"

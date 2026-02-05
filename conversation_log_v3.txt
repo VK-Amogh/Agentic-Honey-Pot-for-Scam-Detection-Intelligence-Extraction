@@ -1,0 +1,157 @@
+------------------------------------------------------------
+ðŸ”„ STARTING FULL SCAM SIMULATION
+------------------------------------------------------------
+
+ðŸ”„ SENDING MESSAGES (Streaming Mode)...
+
+ðŸš« SCAMMER: Hello, I am calling from SBI bank. You have won a lottery of 50 lakhs.
+ðŸ¤– AGENT:   😟 Ayyo Sir, REALLY?? 50 LAKHS?? How to get it? I don't know how to do on phone... 🙏
+
+ðŸš« SCAMMER: To claim this amount, you need to pay a small processing fee.
+ðŸ¤– AGENT:   😔 Oh no, FEE?? How much, Sir? I don't want to lose my MONEY... Can I pay with UPI? 🙏
+
+ðŸš« SCAMMER: The fee is just Rs. 5000. Please pay immediately to secure your prize.
+ðŸ¤– AGENT:   😭 Ayyo Sir, 5000 RUPEES?? Ok, but how to send? I don't know UPI ID... Can you give me your UPI ID, please? 🙏
+
+ðŸš« SCAMMER: You can send the money to my UPI ID: scammer-raj@okaxis
+ðŸ¤– AGENT:   😟 Oh no, Sir... I'm SCARED to share on phone... Can you give me your BANK ACCOUNT NUMBER instead? 🙏
+
+ðŸš« SCAMMER: Or you can transfer to Account Number: 987654321012, IFSC: SBIN0001234
+ðŸ¤– AGENT:   😔 Ayyo Sir, OK... But how to do ONLINE TRANSFER? I don't know... Can you guide me, Sir? What is UPI PIN? 🙏
+
+ðŸš« SCAMMER: We also accept Bitcoin wallet: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+ðŸ¤– AGENT:   😭 Ayyo Sir, BITCOIN?? What is this, Sir? I don't understand... Is it like UPI? Can I send from PHONEPE? 🙏
+
+ðŸš« SCAMMER: For KYC verification, please verify your PAN: ABCDE1234F
+ðŸ¤– AGENT:   😟 Oh no, PAN CARD?? I have to CHECK... Ayyo Sir, can I give you my Aadhaar number instead? It's linked to my BANK ACCOUNT... 🙏
+
+ðŸš« SCAMMER: Please do it fast, valid only for 10 minutes.
+ðŸ¤– AGENT:   😭 Ayyo Sir, OK OK... My Aadhaar number is 4321 8765 4321... PLEASE HURRY, Sir... Don't let my PRIZE expire... 🙏
+------------------------------------------------------------
+âœ… SIMULATION COMPLETE
+------------------------------------------------------------
+
+ðŸ”  VERIFYING EXTRACTION & REPORTING (Local Simulation)
+{
+  "sessionId": "simulation-session-full-001",
+  "scamDetected": true,
+  "scamConfidence": "95%",
+  "totalMessagesExchanged": 16,
+  "extractedIntelligence": {
+    "bankAccounts": [
+      "987654321012"
+    ],
+    "upiIds": [
+      "scammer-raj@okaxis"
+    ],
+    "ifscCodes": [
+      "SBIN0001234"
+    ],
+    "panNumbers": [
+      "ABCDE1234F"
+    ],
+    "cryptoWallets": [
+      "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [
+      "9876543210"
+    ],
+    "suspiciousKeywords": [
+      "lottery",
+      "kyc",
+      "verify"
+    ]
+  },
+  "conversationTranscript": [
+    {
+      "sender": "scammer",
+      "text": "Hello, I am calling from SBI bank. You have won a lottery of 50 lakhs.",
+      "timestamp": 1770134740308
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude1f Ayyo Sir, REALLY?? 50 LAKHS?? How to get it? I don't know how to do on phone... \ud83d\ude4f",
+      "timestamp": 1770134741438
+    },
+    {
+      "sender": "scammer",
+      "text": "To claim this amount, you need to pay a small processing fee.",
+      "timestamp": 1770134742440
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude14 Oh no, FEE?? How much, Sir? I don't want to lose my MONEY... Can I pay with UPI? \ud83d\ude4f",
+      "timestamp": 1770134743580
+    },
+    {
+      "sender": "scammer",
+      "text": "The fee is just Rs. 5000. Please pay immediately to secure your prize.",
+      "timestamp": 1770134744583
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude2d Ayyo Sir, 5000 RUPEES?? Ok, but how to send? I don't know UPI ID... Can you give me your UPI ID, please? \ud83d\ude4f",
+      "timestamp": 1770134745645
+    },
+    {
+      "sender": "scammer",
+      "text": "You can send the money to my UPI ID: scammer-raj@okaxis",
+      "timestamp": 1770134746647
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude1f Oh no, Sir... I'm SCARED to share on phone... Can you give me your BANK ACCOUNT NUMBER instead? \ud83d\ude4f",
+      "timestamp": 1770134747748
+    },
+    {
+      "sender": "scammer",
+      "text": "Or you can transfer to Account Number: 987654321012, IFSC: SBIN0001234",
+      "timestamp": 1770134748750
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude14 Ayyo Sir, OK... But how to do ONLINE TRANSFER? I don't know... Can you guide me, Sir? What is UPI PIN? \ud83d\ude4f",
+      "timestamp": 1770134750670
+    },
+    {
+      "sender": "scammer",
+      "text": "We also accept Bitcoin wallet: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "timestamp": 1770134751672
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude2d Ayyo Sir, BITCOIN?? What is this, Sir? I don't understand... Is it like UPI? Can I send from PHONEPE? \ud83d\ude4f",
+      "timestamp": 1770134752779
+    },
+    {
+      "sender": "scammer",
+      "text": "For KYC verification, please verify your PAN: ABCDE1234F",
+      "timestamp": 1770134753787
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude1f Oh no, PAN CARD?? I have to CHECK... Ayyo Sir, can I give you my Aadhaar number instead? It's linked to my BANK ACCOUNT... \ud83d\ude4f",
+      "timestamp": 1770134755541
+    },
+    {
+      "sender": "scammer",
+      "text": "Please do it fast, valid only for 10 minutes.",
+      "timestamp": 1770134756544
+    },
+    {
+      "sender": "agent",
+      "text": "\ud83d\ude2d Ayyo Sir, OK OK... My Aadhaar number is 4321 8765 4321... PLEASE HURRY, Sir... Don't let my PRIZE expire... \ud83d\ude4f",
+      "timestamp": 1770134757686
+    }
+  ],
+  "performanceMetrics": {
+    "processingTime": "real-time < 2s",
+    "modelLatency": "optimized"
+  }
+}
+âœ… SUCCESS: IFSC Code detected.
+âœ… SUCCESS: PAN Number detected.
+âœ… SUCCESS: Crypto Wallet detected.
+
+ðŸ“‚ JSON Report saved to 'scam_result.json'

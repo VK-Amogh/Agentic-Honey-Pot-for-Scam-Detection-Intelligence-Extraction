@@ -13,7 +13,9 @@ detector = ScamDetector()
 agent = AgentPersona()
 extractor = IntelligenceExtractor()
 
-def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool):
+import time
+
+def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool, start_time: float):
     try:
         full_text = request_data.message.text
         for msg in request_data.conversationHistory:
@@ -45,13 +47,10 @@ def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool
                     "cryptoWallets": intelligence_data.get("cryptoWallets", []),
                     "suspiciousKeywords": intelligence_data["suspicious_keywords"]
                 },
-                    "cryptoWallets": intelligence_data.get("cryptoWallets", []),
-                    "suspiciousKeywords": intelligence_data["suspicious_keywords"]
-                },
                 "conversationTranscript": [m.model_dump() for m in request_data.conversationHistory],
-                "agentReasoning": agent.get_agent_notes(request_data.sessionId),
+                "agentReasoning": agent.get_agent_notes(request_data.sessionId, request_data.conversationHistory),
                 "performanceMetrics": {
-                    "processingTime": "real-time < 2s",
+                    "processingTime": f"{time.time() - start_time:.4f}s",
                     "modelLatency": "optimized"
                 }
             }
@@ -69,13 +68,15 @@ async def handle_message(
     if not x_api_key:
         raise HTTPException(status_code=401, detail="Invalid API Key")
 
+    start_time = time.time()
+
     try:
         is_scam = detector.analyze(payload.message.text, payload.conversationHistory)
         
         metadata_dict = payload.metadata.model_dump() if payload.metadata else {}
         reply_text = agent.generate_reply(payload.message.text, payload.conversationHistory, metadata_dict, is_scam=is_scam)
         
-        background_tasks.add_task(process_background_tasks, payload, is_scam)
+        background_tasks.add_task(process_background_tasks, payload, is_scam, start_time)
         
         return AgentResponse(
             status="success",
