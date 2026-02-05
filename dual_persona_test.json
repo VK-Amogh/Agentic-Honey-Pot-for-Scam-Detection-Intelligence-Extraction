@@ -1,0 +1,66 @@
+{
+  "scam_test": {
+    "sessionId": "test-scam-session",
+    "scamDetected": true,
+    "scamConfidenceScore": 1.0,
+    "scamType": "HEURISTIC_MATCH",
+    "totalMessagesExchanged": 7,
+    "extractedIntelligence": {
+      "bankAccounts": [],
+      "upiIds": [],
+      "phishingLinks": [],
+      "phoneNumbers": [],
+      "ifscCodes": [],
+      "panNumbers": [],
+      "cryptoWallets": [],
+      "suspiciousKeywords": [
+        "cbi",
+        "arrest",
+        "police"
+      ]
+    },
+    "conversationTranscript": [
+      {
+        "sender": "scammer",
+        "text": "Your bank has reported suspicious activity.",
+        "timestamp": 1770005528000
+      },
+      {
+        "sender": "user",
+        "text": "What happened sir?",
+        "timestamp": 1770005528100
+      },
+      {
+        "sender": "scammer",
+        "text": "Police case registered. Warrant issued.",
+        "timestamp": 1770005528200
+      },
+      {
+        "sender": "user",
+        "text": "But I didnt do anything!",
+        "timestamp": 1770005528300
+      },
+      {
+        "sender": "scammer",
+        "text": "Transfer money to clear your name.",
+        "timestamp": 1770005528400
+      },
+      {
+        "sender": "scammer",
+        "text": "This is CBI. Your Aadhaar is linked to money laundering. You will be arrested today. Pay 50000 to avoid jail.",
+        "timestamp": 1770005528731
+      },
+      {
+        "sender": "agent",
+        "text": "I am not sure I understand. Can you explain again?",
+        "timestamp": 1770312643732
+      }
+    ],
+    "agentNotes": "Agent engaged in session test-scam-session. (Summary unavailable due to error)",
+    "performanceMetrics": {
+      "processingTime": "4.1341s",
+      "detectionMethod": "heuristic"
+    }
+  },
+  "benign_test": "No callback for benign (as expected)"
+}

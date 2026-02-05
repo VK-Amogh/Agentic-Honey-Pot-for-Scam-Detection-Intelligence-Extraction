@@ -1,0 +1,107 @@
+﻿python : 2026-02-05 22:44:45,879 - httpx - INFO - 
+HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/completions 
+"HTTP/1.1 401 Unauthorized"
+At line:1 char:1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026 
+   -02-05 22:4...1 Unauthorized":String) [], Rem  
+  oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-02-05 22:44:45,879 - app.core.detector - 
+ERROR - LLM detection failed: Error code: 401 - 
+{'error': {'message': 'Invalid API Key', 'type': 
+'invalid_request_error', 'code': 
+'invalid_api_key'}}
+2026-02-05 22:44:45,960 - httpx - INFO - HTTP 
+Request: POST 
+https://api.groq.com/openai/v1/chat/completions 
+"HTTP/1.1 401 Unauthorized"
+2026-02-05 22:44:45,962 - app.core.agent - ERROR 
+- Error generating response: Error code: 401 - 
+{'error': {'message': 'Invalid API Key', 'type': 
+'invalid_request_error', 'code': 
+'invalid_api_key'}}
+2026-02-05 22:44:46,004 - httpx - INFO - HTTP 
+Request: POST 
+https://api.groq.com/openai/v1/chat/completions 
+"HTTP/1.1 401 Unauthorized"
+2026-02-05 22:44:46,004 - app.core.agent - ERROR 
+- Error generating agent notes: Error code: 401 - 
+{'error': {'message': 'Invalid API Key', 'type': 
+'invalid_request_error', 'code': 
+'invalid_api_key'}}
+2026-02-05 22:44:46,007 - httpx - INFO - HTTP 
+Request: POST http://testserver/api/message 
+"HTTP/1.1 200 OK"
+=== CALLBACK PAYLOAD (sent to GUVI) ===
+{
+  "sessionId": "test-session-123",
+  "scamDetected": true,
+  "totalMessagesExchanged": 7,
+  "extractedIntelligence": {
+    "bankAccounts": [],
+    "upiIds": [
+      "fraud@upi"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [],
+    "ifscCodes": [],
+    "panNumbers": [],
+    "cryptoWallets": [],
+    "suspiciousKeywords": [
+      "block",
+      "verify",
+      "suspend"
+    ]
+  },
+  "conversationTranscript": [
+    {
+      "sender": "scammer",
+      "text": "Your bank account will be suspended. Verify now.",
+      "timestamp": 1770005528000
+    },
+    {
+      "sender": "user",
+      "text": "Oh no! What do I do sir?",
+      "timestamp": 1770005528100
+    },
+    {
+      "sender": "scammer",
+      "text": "Transfer Rs 5000 to avoid suspension.",
+      "timestamp": 1770005528200
+    },
+    {
+      "sender": "user",
+      "text": "But I dont have money...",
+      "timestamp": 1770005528300
+    },
+    {
+      "sender": "scammer",
+      "text": "Then give your bank details for verification.",
+      "timestamp": 1770005528400
+    },
+    {
+      "sender": "scammer",
+      "text": "Send money to UPI: fraud@upi immediately or your account will be blocked!",
+      "timestamp": 1770005528731
+    },
+    {
+      "sender": "agent",
+      "text": "I am not sure I understand. Can you explain again?",
+      "timestamp": 1770311685963
+    }
+  ],
+  "agentNotes": "Agent engaged in session test-session-123. (Summary unavailable due to error)",
+  "performanceMetrics": {
+    "processingTime": "0.5167s",
+    "modelLatency": "optimized"
+  }
+}
+\n=== API RESPONSE ===
+{
+  "status": "success",
+  "reply": "I am not sure I understand. Can you explain again?"
+}

@@ -1,0 +1,63 @@
+{
+  "sessionId": "test-session-123",
+  "scamDetected": true,
+  "totalMessagesExchanged": 7,
+  "extractedIntelligence": {
+    "bankAccounts": [],
+    "upiIds": [
+      "fraud@upi"
+    ],
+    "phishingLinks": [],
+    "phoneNumbers": [],
+    "ifscCodes": [],
+    "panNumbers": [],
+    "cryptoWallets": [],
+    "suspiciousKeywords": [
+      "block",
+      "verify",
+      "suspend"
+    ]
+  },
+  "conversationTranscript": [
+    {
+      "sender": "scammer",
+      "text": "Your bank account will be suspended. Verify now.",
+      "timestamp": 1770005528000
+    },
+    {
+      "sender": "user",
+      "text": "Oh no! What do I do sir?",
+      "timestamp": 1770005528100
+    },
+    {
+      "sender": "scammer",
+      "text": "Transfer Rs 5000 to avoid suspension.",
+      "timestamp": 1770005528200
+    },
+    {
+      "sender": "user",
+      "text": "But I dont have money...",
+      "timestamp": 1770005528300
+    },
+    {
+      "sender": "scammer",
+      "text": "Then give your bank details for verification.",
+      "timestamp": 1770005528400
+    },
+    {
+      "sender": "scammer",
+      "text": "Send money to UPI: fraud@upi immediately or your account will be blocked!",
+      "timestamp": 1770005528731
+    },
+    {
+      "sender": "agent",
+      "text": "I am not sure I understand. Can you explain again?",
+      "timestamp": 1770311897968
+    }
+  ],
+  "agentNotes": "Agent engaged in session test-session-123. (Summary unavailable due to error)",
+  "performanceMetrics": {
+    "processingTime": "1.0699s",
+    "modelLatency": "optimized"
+  }
+}

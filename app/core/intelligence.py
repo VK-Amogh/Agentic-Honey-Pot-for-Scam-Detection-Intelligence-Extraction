@@ -65,7 +65,7 @@ class IntelligenceExtractor:
             kw for kw in self._patterns["suspicious_keywords"] 
             if kw in lower_text
         ]
-        results["suspicious_keywords"] = list(set(found_keywords))
+        results["suspiciousKeywords"] = list(set(found_keywords))
 
         return results
 

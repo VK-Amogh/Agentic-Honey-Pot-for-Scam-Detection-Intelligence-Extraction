@@ -1,0 +1,85 @@
+{
+  "results": {
+    "scenario_1_real_bank": {
+      "status": "success",
+      "reply": "I am not sure I understand. Can you explain again?"
+    },
+    "scenario_2_fake_bank": {
+      "turns": 3,
+      "last_reply": {
+        "status": "success",
+        "reply": "I am not sure I understand. Can you explain again?"
+      }
+    },
+    "scenario_3_gradual_scam": {
+      "turns": 4,
+      "last_reply": {
+        "status": "success",
+        "reply": "I am not sure I understand. Can you explain again?"
+      }
+    }
+  },
+  "callbacks": [
+    {
+      "sessionId": "fake-bank-002",
+      "scamDetected": true,
+      "scamConfidenceScore": 0.65,
+      "scamType": "HEURISTIC_MATCH",
+      "totalMessagesExchanged": 6,
+      "extractedIntelligence": {
+        "bankAccounts": [],
+        "upiIds": [
+          "rbi-verification@paytm"
+        ],
+        "phishingLinks": [],
+        "phoneNumbers": [],
+        "ifscCodes": [],
+        "panNumbers": [],
+        "cryptoWallets": [],
+        "suspiciousKeywords": [
+          "rbi",
+          "verify",
+          "block",
+          "urgent"
+        ]
+      },
+      "conversationTranscript": [
+        {
+          "sender": "scammer",
+          "text": "URGENT: Your SBI account will be BLOCKED in 24 hours.",
+          "timestamp": 1770312683492
+        },
+        {
+          "sender": "user",
+          "text": "what?? my account blocked??",
+          "timestamp": 1770312713492
+        },
+        {
+          "sender": "scammer",
+          "text": "Sir, I am calling from RBI. Your account has unauthorized transactions.",
+          "timestamp": 1770312743492
+        },
+        {
+          "sender": "user",
+          "text": "but sirr i didnt do anything",
+          "timestamp": 1770312773492
+        },
+        {
+          "sender": "scammer",
+          "text": "Yes madam, send Rs 5000 to UPI: rbi-verification@paytm to verify your identity.",
+          "timestamp": 1770312803492
+        },
+        {
+          "sender": "agent",
+          "text": "I am not sure I understand. Can you explain again?",
+          "timestamp": 1770312804395
+        }
+      ],
+      "agentNotes": "Agent engaged in session fake-bank-002. (Summary unavailable due to error)",
+      "performanceMetrics": {
+        "processingTime": "0.1450s",
+        "detectionMethod": "heuristic"
+      }
+    }
+  ]
+}

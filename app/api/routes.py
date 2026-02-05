@@ -15,7 +15,7 @@ extractor = IntelligenceExtractor()
 
 import time
 
-def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool, start_time: float):
+def process_background_tasks(request_data: IncomingMessageRequest, detection_result: dict, start_time: float, agent_reply: str):
     try:
         full_text = request_data.message.text
         for msg in request_data.conversationHistory:
@@ -29,13 +29,28 @@ def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool
             len(intelligence_data["phishingLinks"]) > 0
         )
         
-        total_messages = len(request_data.conversationHistory) + 1
+        total_messages = len(request_data.conversationHistory) + 2
+        
+        # Build complete chat transcript
+        chat_transcript = [m.model_dump() for m in request_data.conversationHistory]
+        chat_transcript.append(request_data.message.model_dump())
+        chat_transcript.append({
+            "sender": "agent",
+            "text": agent_reply,
+            "timestamp": int(time.time() * 1000)
+        })
+        
+        is_scam = detection_result.get("is_scam", False)
+        confidence = detection_result.get("confidence", 0.0)
+        scam_type = detection_result.get("scam_type", "UNKNOWN")
         
         # Report only if Scammed Detected AND (Critical Info found OR Long Conversation)
         if is_scam and (has_critical_info or total_messages >= 5):
             payload = {
                 "sessionId": request_data.sessionId,
                 "scamDetected": is_scam,
+                "scamConfidenceScore": round(confidence, 2),
+                "scamType": scam_type,
                 "totalMessagesExchanged": total_messages,
                 "extractedIntelligence": {
                     "bankAccounts": intelligence_data["bankAccounts"],
@@ -45,13 +60,13 @@ def process_background_tasks(request_data: IncomingMessageRequest, is_scam: bool
                     "ifscCodes": intelligence_data.get("ifscCodes", []),
                     "panNumbers": intelligence_data.get("panNumbers", []),
                     "cryptoWallets": intelligence_data.get("cryptoWallets", []),
-                    "suspiciousKeywords": intelligence_data["suspicious_keywords"]
+                    "suspiciousKeywords": intelligence_data.get("suspiciousKeywords", [])
                 },
-                "conversationTranscript": [m.model_dump() for m in request_data.conversationHistory],
-                "agentReasoning": agent.get_agent_notes(request_data.sessionId, request_data.conversationHistory),
+                "conversationTranscript": chat_transcript,
+                "agentNotes": agent.get_agent_notes(request_data.sessionId, request_data.conversationHistory),
                 "performanceMetrics": {
                     "processingTime": f"{time.time() - start_time:.4f}s",
-                    "modelLatency": "optimized"
+                    "detectionMethod": detection_result.get("method", "unknown")
                 }
             }
             CallbackService.send_final_result(payload)
@@ -71,12 +86,14 @@ async def handle_message(
     start_time = time.time()
 
     try:
-        is_scam = detector.analyze(payload.message.text, payload.conversationHistory)
+        # Get detection result with confidence score
+        detection_result = detector.analyze_with_confidence(payload.message.text, payload.conversationHistory)
+        is_scam = detection_result["is_scam"]
         
         metadata_dict = payload.metadata.model_dump() if payload.metadata else {}
         reply_text = agent.generate_reply(payload.message.text, payload.conversationHistory, metadata_dict, is_scam=is_scam)
         
-        background_tasks.add_task(process_background_tasks, payload, is_scam, start_time)
+        background_tasks.add_task(process_background_tasks, payload, detection_result, start_time, reply_text)
         
         return AgentResponse(
             status="success",
@@ -85,4 +102,4 @@ async def handle_message(
 
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

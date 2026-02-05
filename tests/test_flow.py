@@ -6,8 +6,10 @@ from app.main import app
 # Initialize the TestClient
 client = TestClient(app)
 
+from app.core.config import settings
+
 # Dummy API Key for testing
-HEADERS = {"x-api-key": "test-secret-key"}
+HEADERS = {"x-api-key": settings.API_SECRET_KEY}
 
 def test_health_check():
     """Verify that the health check endpoint returns 200 OK."""
@@ -19,7 +21,7 @@ def test_api_key_validation():
     """Verify that missing API key returns 401 Unauthorized."""
     payload = {
         "sessionId": "test-session",
-        "message": {"sender": "user", "text": "Hello", "timestamp": "2026-01-01T00:00:00Z"},
+        "message": {"sender": "user", "text": "Hello", "timestamp": 1770000000000},
         "conversationHistory": []
     }
     response = client.post("/api/message", json=payload)
@@ -36,7 +38,7 @@ def test_scam_detection_and_response():
         "message": {
             "sender": "scammer",
             "text": "Your account will be blocked. Verify immediately.",
-            "timestamp": "2026-01-21T10:15:30Z"
+            "timestamp": 1770005528731
         },
         "conversationHistory": []
     }
@@ -61,18 +63,18 @@ def test_intelligence_extraction_trigger():
             "message": {
                 "sender": "scammer",
                 "text": "Send money to UPI: scammer@upi",
-                "timestamp": "2026-01-21T10:20:00Z"
+                "timestamp": 1770005528731
             },
             "conversationHistory": [
                 {
                     "sender": "scammer",
                     "text": "Your account is blocked.",
-                    "timestamp": "2026-01-21T10:15:00Z"
+                    "timestamp": 1770005528731
                 },
                 {
                     "sender": "user",
                     "text": "Oh no, what do I do?",
-                    "timestamp": "2026-01-21T10:16:00Z"
+                    "timestamp": 1770005528731
                 }
             ]
         }
@@ -98,7 +100,7 @@ def test_normal_message_flow():
         "message": {
             "sender": "user",
             "text": "Hello, how are you?",
-            "timestamp": "2026-01-21T09:00:00Z"
+            "timestamp": 1770005528731
         },
         "conversationHistory": []
     }
