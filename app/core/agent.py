@@ -254,14 +254,14 @@ class AgentPersona:
                 f"and the outcome."
             )
 
-            completion = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
+            completion = self._call_with_rotation(
+                [{"role": "user", "content": prompt}],
                 temperature=0.5,
-                max_tokens=60,
-                stream=False
+                max_tokens=60
             )
-            return completion.choices[0].message.content.strip()
+            if completion:
+                return completion.choices[0].message.content.strip()
+            return f"Agent engaged in session {session_id}."
         except Exception as e:
             logger.error(f"Error generating agent notes: {str(e)}")
             return f"Agent engaged in session {session_id}. (Summary unavailable due to error)"
