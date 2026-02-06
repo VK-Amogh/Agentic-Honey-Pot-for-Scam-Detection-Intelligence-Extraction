@@ -13,12 +13,30 @@ class Settings:
     API_PREFIX: str = "/api/v1"
     
     # Security
-    # In a real deployment, this should be loaded from a secure vault or environment variable.
-    # We default to a placeholder for local development if not set.
     API_SECRET_KEY: str = os.getenv("API_SECRET_KEY", "default-insecure-key-change-me")
+    
+    # GROQ API Keys - supports up to 4 keys for rotation
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY")
+    GROQ_API_KEY_2: str = os.getenv("GROQ_API_KEY_2")
+    GROQ_API_KEY_3: str = os.getenv("GROQ_API_KEY_3")
+    GROQ_API_KEY_4: str = os.getenv("GROQ_API_KEY_4")
+    
+    @property
+    def GROQ_API_KEYS(self) -> list:
+        """Returns list of all available GROQ API keys."""
+        keys = []
+        if self.GROQ_API_KEY:
+            keys.append(self.GROQ_API_KEY)
+        if self.GROQ_API_KEY_2:
+            keys.append(self.GROQ_API_KEY_2)
+        if self.GROQ_API_KEY_3:
+            keys.append(self.GROQ_API_KEY_3)
+        if self.GROQ_API_KEY_4:
+            keys.append(self.GROQ_API_KEY_4)
+        return keys
     
     # External Services
     EVALUATION_ENDPOINT: str = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
 
 settings = Settings()
+

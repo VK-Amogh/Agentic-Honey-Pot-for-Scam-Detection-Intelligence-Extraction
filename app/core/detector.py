@@ -14,12 +14,39 @@ class ScamDetector:
         self._low_risk = ["lottery", "winner", "refund", "prize", "offer", "cashback"]
         self._indian_scam_keywords = ["bhaiya", "madam", "kripya", "turant", "band", "update karo", "paisa", "aadhar", "pan"]
         
-        if settings.GROQ_API_KEY:
-            self.client = Groq(api_key=settings.GROQ_API_KEY)
-            self.model_name = "llama-3.3-70b-versatile"
+        # Key rotation setup
+        self.api_keys = settings.GROQ_API_KEYS
+        self.current_key_index = 0
+        self.model_name = "llama-3.3-70b-versatile"
+        
+        if self.api_keys:
+            self.clients = [Groq(api_key=key) for key in self.api_keys]
             self.use_llm = True
+            logger.info(f"Detector initialized with {len(self.clients)} GROQ clients")
         else:
+            self.clients = []
             self.use_llm = False
+    
+    def _call_with_rotation(self, messages):
+        """Try all API keys until one succeeds."""
+        if not self.clients:
+            return None
+            
+        for attempt in range(len(self.clients)):
+            client = self.clients[(self.current_key_index + attempt) % len(self.clients)]
+            try:
+                completion = client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                    temperature=0.3,
+                    max_tokens=100
+                )
+                self.current_key_index = (self.current_key_index + attempt) % len(self.clients)
+                return completion
+            except Exception as e:
+                logger.warning(f"Detector: GROQ key {attempt+1} failed: {str(e)[:50]}")
+                continue
+        return None
 
     def analyze_with_confidence(self, message_text: str, history: List[dict] = None) -> Dict:
         """
@@ -70,13 +97,10 @@ class ScamDetector:
                 f"TYPE: scam_type or NONE"
             )
             
-            completion = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=50,
-                stream=False
-            )
+            completion = self._call_with_rotation([{"role": "user", "content": prompt}])
+            
+            if not completion:
+                return self._heuristic_analyze_with_score(message_text, history)
             
             result = completion.choices[0].message.content.strip().upper()
             

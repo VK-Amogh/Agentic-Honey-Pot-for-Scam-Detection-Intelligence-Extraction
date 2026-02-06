@@ -8,16 +8,52 @@ logger = logging.getLogger(__name__)
 
 class AgentPersona:
     def __init__(self):
-        if not settings.GROQ_API_KEY:
-            logger.warning("GROQ_API_KEY is missing.")
-            self.client = None
+        self.api_keys = settings.GROQ_API_KEYS
+        self.current_key_index = 0
+        self.model_name = "llama-3.3-70b-versatile"
+        
+        if not self.api_keys:
+            logger.warning("No GROQ API keys configured.")
+            self.clients = []
         else:
-            self.client = Groq(api_key=settings.GROQ_API_KEY)
-            self.model_name = "llama-3.3-70b-versatile"
+            self.clients = [Groq(api_key=key) for key in self.api_keys]
+            logger.info(f"Initialized {len(self.clients)} GROQ clients for key rotation")
+    
+    def _get_next_client(self):
+        """Rotate to next API key."""
+        if not self.clients:
+            return None
+        self.current_key_index = (self.current_key_index + 1) % len(self.clients)
+        return self.clients[self.current_key_index]
+    
+    def _call_with_rotation(self, messages, temperature=0.7, max_tokens=100):
+        """Try all API keys until one succeeds."""
+        if not self.clients:
+            return None
+            
+        last_error = None
+        for attempt in range(len(self.clients)):
+            client = self.clients[(self.current_key_index + attempt) % len(self.clients)]
+            try:
+                completion = client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                # Success - update index for next call
+                self.current_key_index = (self.current_key_index + attempt) % len(self.clients)
+                return completion
+            except Exception as e:
+                last_error = e
+                logger.warning(f"GROQ key {attempt+1}/{len(self.clients)} failed: {str(e)[:50]}")
+                continue
+        
+        raise last_error if last_error else Exception("All GROQ keys failed")
 
     def generate_reply(self, incoming_text: str, history: List[Dict], metadata: Dict = None, is_scam: bool = True) -> str:
-        if not self.client:
-            return "system_error: missing_api_key"
+        if not self.clients:
+            return "I am not sure I understand. Can you explain again?"
 
         try:
             channel = metadata.get("channel", "Unknown") if metadata else "Unknown"
@@ -181,14 +217,11 @@ class AgentPersona:
             
             messages.append({"role": "user", "content": incoming_text})
             
-            completion = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                temperature=0.7,
-                max_tokens=150,
-                stream=False
-            )
-            return completion.choices[0].message.content.strip()
+            completion = self._call_with_rotation(messages, temperature=0.7, max_tokens=150)
+            if completion:
+                return completion.choices[0].message.content.strip()
+            else:
+                return "I am not sure I understand. Can you explain again?"
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
