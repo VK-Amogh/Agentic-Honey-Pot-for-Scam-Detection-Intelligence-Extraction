@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Header, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Header, HTTPException, BackgroundTasks, Request
+from fastapi.responses import JSONResponse
 from app.models.schemas import IncomingMessageRequest, AgentResponse
 from app.core.detector import ScamDetector
 from app.core.agent import AgentPersona
@@ -103,3 +104,23 @@ async def handle_message(
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+# Support for GUVI endpoint tester - accepts GET/OPTIONS/HEAD
+@router.get("/message")
+@router.head("/message")
+async def message_get():
+    """GET endpoint for health check / endpoint verification."""
+    return {"status": "ready", "endpoint": "/api/message", "method": "POST required for messages"}
+
+@router.options("/message")
+async def message_options():
+    """OPTIONS endpoint for CORS preflight."""
+    return JSONResponse(
+        content={"methods": ["POST", "GET", "OPTIONS", "HEAD"]},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, HEAD",
+            "Access-Control-Allow-Headers": "x-api-key, content-type"
+        }
+    )
+

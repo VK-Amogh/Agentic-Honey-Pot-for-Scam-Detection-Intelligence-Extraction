@@ -1,0 +1,38 @@
+﻿============================================================
+TESTING LIVE SERVER
+URL: https://agentic-honey-pot-for-scam-detection-5voj.onrender.com
+============================================================
+
+[1] HEALTH CHECK...
+Status: 200 - {'message': 'Agentic Honey-Pot System is running.'}
+
+============================================================
+[2] SCENARIO 1: REAL BANK MESSAGE (Legitimate)
+============================================================
+Status: 200
+Response: {
+  "status": "success",
+  "reply": "thnk u ji, will check now \ud83d\ude0a"
+}
+
+============================================================
+[3] SCENARIO 2: FAKE BANK SCAM
+============================================================
+Status: 200
+Response: {
+  "status": "success",
+  "reply": "sirr plsss dont block my acc.. which upi id to send?? rbi-verify@paytm is correct no?? \ud83d\ude4f"
+}
+
+============================================================
+[4] SCENARIO 3: GRADUAL SCAM (Friendly -> Scam)
+============================================================
+Status: 200
+Response: {
+  "status": "success",
+  "reply": "sirr plsss which acc to link?? i have 2 acc \ud83d\ude30"
+}
+
+============================================================
+TESTS COMPLETE
+============================================================

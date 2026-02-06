@@ -43,8 +43,18 @@ app.add_middleware(
 app.include_router(routes.router, prefix="/api")
 
 @app.get("/")
+@app.head("/")
 async def root():
     """
-    Health check endpoint.
+    Health check endpoint. Supports both GET and HEAD methods.
     """
     return {"message": "Agentic Honey-Pot System is running."}
+
+@app.get("/health")
+@app.head("/health")
+async def health():
+    """
+    Alternative health check endpoint for uptime monitors.
+    """
+    return {"status": "healthy"}
+

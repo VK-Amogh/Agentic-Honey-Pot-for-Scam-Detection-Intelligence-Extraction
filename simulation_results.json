@@ -1,0 +1,17 @@
+[
+  {
+    "turn": 1,
+    "reply": "I am not sure I understand. Can you explain again?",
+    "latency": 0.801100492477417
+  },
+  {
+    "turn": 2,
+    "reply": "I am not sure I understand. Can you explain again?",
+    "latency": 0.9622325897216797
+  },
+  {
+    "turn": 3,
+    "reply": "I am not sure I understand. Can you explain again?",
+    "latency": 0.6395883560180664
+  }
+]

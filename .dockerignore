@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test files (not needed in deployment)
+tests/
+test_*.py
+*_test.py
+pytest.ini
+.pytest_cache/
+
+# Local development files
+*.log
+*.txt
+!requirements.txt
+*.json
+*.md
+!README.md
+
+# Environment files
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# Debug files
+debug_*.txt
+conversation_log*.txt
+
+# Artifacts
+callback_payload.json
+dual_persona_test.json
+three_scenarios_test.json
