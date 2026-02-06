@@ -39,8 +39,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API Routes
+# Include API Routes at both /api and root level for GUVI compatibility
 app.include_router(routes.router, prefix="/api")
+app.include_router(routes.router, prefix="")  # Also mount at root for GUVI validator
 
 from fastapi import Header, HTTPException
 
@@ -69,5 +70,6 @@ async def root(x_api_key: str = Header(None, alias="x-api-key")):
 async def health():
     """Alternative health check endpoint for uptime monitors."""
     return {"status": "healthy"}
+
 
 
