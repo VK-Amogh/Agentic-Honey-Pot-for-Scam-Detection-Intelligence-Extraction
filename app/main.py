@@ -42,19 +42,32 @@ app.add_middleware(
 # Include API Routes
 app.include_router(routes.router, prefix="/api")
 
+from fastapi import Header, HTTPException
+
 @app.get("/")
 @app.head("/")
-async def root():
+async def root(x_api_key: str = Header(None, alias="x-api-key")):
     """
-    Health check endpoint. Supports both GET and HEAD methods.
+    Health check endpoint with optional API key validation.
+    GUVI validator uses this to test endpoint reachability and auth.
     """
+    # If API key is provided, validate it
+    if x_api_key:
+        if x_api_key != settings.API_SECRET_KEY:
+            raise HTTPException(status_code=403, detail="Invalid API key")
+        return {
+            "status": "active",
+            "service": "agentic-honeypot",
+            "mode": "validation",
+            "message": "API key valid. Ready for messages."
+        }
+    # No API key = simple health check
     return {"message": "Agentic Honey-Pot System is running."}
 
 @app.get("/health")
 @app.head("/health")
 async def health():
-    """
-    Alternative health check endpoint for uptime monitors.
-    """
+    """Alternative health check endpoint for uptime monitors."""
     return {"status": "healthy"}
+
 
