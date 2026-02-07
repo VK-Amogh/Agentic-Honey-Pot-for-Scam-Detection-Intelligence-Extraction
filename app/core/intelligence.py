@@ -19,9 +19,6 @@ class IntelligenceExtractor:
             # Bank account: 9-18 digits (Indian bank accounts are typically 9-18 digits)
             "bank_account": re.compile(r"\b\d{9,18}\b"),
             
-            # Card numbers: 16 digits (may have spaces/dashes)
-            "card_number": re.compile(r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b"),
-            
             # Aadhaar: 12 digits (may have spaces)
             "aadhaar": re.compile(r"\b\d{4}[\s]?\d{4}[\s]?\d{4}\b"),
             
@@ -60,14 +57,12 @@ class IntelligenceExtractor:
             "ifscCodes": [],
             "panNumbers": [],
             "cryptoWallets": [],
-            "cardNumbers": [],
             "aadhaarNumbers": [],
             "emails": []
         }
 
         # 1. Extract UPI IDs (exclude common email domains)
         upi_matches = self._patterns["upi_id"].findall(text)
-        # Filter out emails - UPI IDs don't have .com, .in, .org etc
         email_domains = ['.com', '.in', '.org', '.net', '.co', '.io', '.edu', '.gov']
         upi_ids = []
         for upi in upi_matches:
@@ -91,26 +86,19 @@ class IntelligenceExtractor:
         results["phoneNumbers"] = list(seen_base_numbers.values())
         phone_digits = set(seen_base_numbers.keys())
 
-        # 4. Extract Card Numbers (16 digits)
-        card_matches = self._patterns["card_number"].findall(text)
-        card_numbers = [re.sub(r'[\s\-]', '', c) for c in card_matches]
-        results["cardNumbers"] = list(set(card_numbers))
-        card_digits = set(card_numbers)
-
-        # 5. Extract Aadhaar Numbers (12 digits)
+        # 4. Extract Aadhaar Numbers (12 digits)
         aadhaar_matches = self._patterns["aadhaar"].findall(text)
         aadhaar_numbers = [re.sub(r'\s', '', a) for a in aadhaar_matches]
-        # Filter: must be exactly 12 digits and not look like phone
         valid_aadhaar = []
         for num in aadhaar_numbers:
-            if len(num) == 12 and num not in phone_digits and num not in card_digits:
+            if len(num) == 12 and num not in phone_digits:
                 # Aadhaar doesn't start with 0 or 1
                 if num[0] not in '01':
                     valid_aadhaar.append(num)
         results["aadhaarNumbers"] = list(set(valid_aadhaar))
         aadhaar_digits = set(valid_aadhaar)
 
-        # 6. Extract Bank Accounts (9-18 digits, excluding phone/card/aadhaar)
+        # 5. Extract Bank Accounts (9-18 digits, excluding phone/aadhaar)
         all_numbers = self._patterns["bank_account"].findall(text)
         bank_accounts = []
         for num in all_numbers:
@@ -120,30 +108,26 @@ class IntelligenceExtractor:
             # Skip if already identified as phone
             if num in phone_digits:
                 continue
-            # Skip if it's a card number (16 digits)
-            if len(num) == 16 and num in card_digits:
-                continue
-            # Skip if it's aadhaar (12 digits)
+            # Skip if it's aadhaar (12 digits starting 2-9)
             if len(num) == 12 and num in aadhaar_digits:
                 continue
-            # Skip OTPs/PINs (4-6 digits) - we only capture 9+ anyway
             # Valid bank account
             bank_accounts.append(num)
         results["bankAccounts"] = list(set(bank_accounts))
 
-        # 7. Extract IFSC Codes
+        # 6. Extract IFSC Codes
         results["ifscCodes"] = list(set([c.upper() for c in self._patterns["ifsc_code"].findall(text)]))
 
-        # 8. Extract PAN Numbers
+        # 7. Extract PAN Numbers
         results["panNumbers"] = list(set([p.upper() for p in self._patterns["pan_card"].findall(text)]))
         
-        # 9. Extract Crypto Wallets
+        # 8. Extract Crypto Wallets
         results["cryptoWallets"] = list(set(self._patterns["crypto_wallet"].findall(text)))
 
-        # 10. Extract URLs (phishing links)
+        # 9. Extract URLs (phishing links)
         results["phishingLinks"] = list(set(self._patterns["url"].findall(text)))
 
-        # 11. Extract Suspicious Keywords
+        # 10. Extract Suspicious Keywords
         lower_text = text.lower()
         found_keywords = [kw for kw in self._patterns["suspicious_keywords"] if kw in lower_text]
         results["suspiciousKeywords"] = list(set(found_keywords))
@@ -159,4 +143,3 @@ class IntelligenceExtractor:
             if key in new_data:
                 current[key] = list(set(current[key] + new_data[key]))
         return current
-
