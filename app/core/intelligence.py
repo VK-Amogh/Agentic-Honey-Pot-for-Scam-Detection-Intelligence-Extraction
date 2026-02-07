@@ -11,7 +11,8 @@ class IntelligenceExtractor:
         # Compiled patterns for efficiency
         self._patterns = {
             "upi_id": re.compile(r"[\w\.\-_]+@[\w]+", re.IGNORECASE),
-            "phone_number": re.compile(r"(?:\+91[\-\s]?)?[6-9]\d{9}"),
+            # Phone: supports +91, +1, +44, etc. OR plain 10-digit Indian numbers
+            "phone_number": re.compile(r"(?:\+\d{1,3}[\-\s]?)?[6-9]\d{9}"),
             "bank_account": re.compile(r"\b\d{9,18}\b"),
             "ifsc_code": re.compile(r"[A-Z]{4}0[A-Z0-9]{6}"),
             "pan_card": re.compile(r"[A-Z]{5}[0-9]{4}[A-Z]{1}"),
@@ -41,16 +42,26 @@ class IntelligenceExtractor:
         # Extract UPI IDs first (to exclude from other patterns)
         results["upiIds"] = list(set(self._patterns["upi_id"].findall(text)))
 
-        # Extract Phone Numbers - 10 digits starting with 6-9 (Indian format)
-        phone_matches = list(set(self._patterns["phone_number"].findall(text)))
-        # Normalize phone numbers (remove +91 prefix for comparison)
-        normalized_phones = set()
+        # Extract Phone Numbers - supports country codes like +91, +1, +44, etc.
+        phone_matches = self._patterns["phone_number"].findall(text)
+        
+        # Deduplicate: if both "+919876543210" and "9876543210" exist, keep only ONE
+        # Prefer the version WITH country code, otherwise keep the plain number
+        seen_base_numbers = {}  # base_number -> full_match
         for phone in phone_matches:
-            clean_phone = re.sub(r'[\+\-\s]', '', phone)
-            if clean_phone.startswith('91') and len(clean_phone) == 12:
-                clean_phone = clean_phone[2:]  # Remove 91 prefix
-            normalized_phones.add(clean_phone)
-        results["phoneNumbers"] = list(set(phone_matches))
+            # Get base number (last 10 digits)
+            clean = re.sub(r'[\+\-\s]', '', phone)
+            base_number = clean[-10:] if len(clean) >= 10 else clean
+            
+            # If we haven't seen this base number, or current has country code (prefer it)
+            if base_number not in seen_base_numbers:
+                seen_base_numbers[base_number] = phone
+            elif phone.startswith('+'):
+                # Prefer version with country code
+                seen_base_numbers[base_number] = phone
+        
+        results["phoneNumbers"] = list(seen_base_numbers.values())
+        normalized_phones = set(seen_base_numbers.keys())
 
         # Extract Bank Accounts - but EXCLUDE phone numbers
         # Bank accounts are typically 11-18 digits, phone numbers are exactly 10 digits starting with 6-9
