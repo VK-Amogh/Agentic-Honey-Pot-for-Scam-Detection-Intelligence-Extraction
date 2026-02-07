@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 from typing import Dict, Any
 from app.core.config import settings
 
@@ -27,6 +28,9 @@ class CallbackService:
         try:
             logger.info(f"Sending final result to {endpoint} for session {payload.get('sessionId')}")
             
+            # Log pretty-printed JSON for viewing
+            logger.debug(f"Payload:\n{json.dumps(payload, indent=2, ensure_ascii=False)}")
+            
             response = requests.post(
                 endpoint,
                 json=payload,
@@ -44,3 +48,4 @@ class CallbackService:
         except requests.RequestException as e:
             logger.error(f"Network error during callback: {str(e)}")
             return False
+
