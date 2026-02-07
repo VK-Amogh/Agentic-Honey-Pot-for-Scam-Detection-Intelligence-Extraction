@@ -61,6 +61,9 @@ def process_background_tasks(request_data: IncomingMessageRequest, detection_res
                     "ifscCodes": intelligence_data.get("ifscCodes", []),
                     "panNumbers": intelligence_data.get("panNumbers", []),
                     "cryptoWallets": intelligence_data.get("cryptoWallets", []),
+                    "cardNumbers": intelligence_data.get("cardNumbers", []),
+                    "aadhaarNumbers": intelligence_data.get("aadhaarNumbers", []),
+                    "emails": intelligence_data.get("emails", []),
                     "suspiciousKeywords": intelligence_data.get("suspiciousKeywords", [])
                 },
                 "conversationTranscript": chat_transcript,

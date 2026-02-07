@@ -10,17 +10,40 @@ class IntelligenceExtractor:
     def __init__(self):
         # Compiled patterns for efficiency
         self._patterns = {
-            "upi_id": re.compile(r"[\w\.\-_]+@[\w]+", re.IGNORECASE),
-            # Phone: supports +91, +1, +44, etc. OR plain 10-digit Indian numbers
+            # UPI IDs: user@bank format (e.g., name@ybl, name@paytm, name@oksbi)
+            "upi_id": re.compile(r"[a-zA-Z0-9\.\-_]+@[a-zA-Z]{2,}", re.IGNORECASE),
+            
+            # Phone: +91/+1/etc OR plain 10-digit starting with 6-9
             "phone_number": re.compile(r"(?:\+\d{1,3}[\-\s]?)?[6-9]\d{9}"),
+            
+            # Bank account: 9-18 digits (Indian bank accounts are typically 9-18 digits)
             "bank_account": re.compile(r"\b\d{9,18}\b"),
-            "ifsc_code": re.compile(r"[A-Z]{4}0[A-Z0-9]{6}"),
-            "pan_card": re.compile(r"[A-Z]{5}[0-9]{4}[A-Z]{1}"),
+            
+            # Card numbers: 16 digits (may have spaces/dashes)
+            "card_number": re.compile(r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b"),
+            
+            # Aadhaar: 12 digits (may have spaces)
+            "aadhaar": re.compile(r"\b\d{4}[\s]?\d{4}[\s]?\d{4}\b"),
+            
+            # IFSC: 4 letters + 0 + 6 alphanumeric
+            "ifsc_code": re.compile(r"\b[A-Z]{4}0[A-Z0-9]{6}\b", re.IGNORECASE),
+            
+            # PAN: 5 letters + 4 digits + 1 letter
+            "pan_card": re.compile(r"\b[A-Z]{5}[0-9]{4}[A-Z]\b", re.IGNORECASE),
+            
+            # Crypto wallets
             "crypto_wallet": re.compile(r"\b(0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{39,59})\b"),
-            "url": re.compile(r"https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+"),
+            
+            # URLs
+            "url": re.compile(r"https?://[^\s<>\"{}|\\^`\[\]]+"),
+            
+            # Email addresses
+            "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
+            
             "suspicious_keywords": [
                 "urgent", "verify", "block", "suspend", "kyc", "expire", 
-                "refund", "winner", "lottery", "password", "otp", "police", "cbi", "rbi", "arrest"
+                "refund", "winner", "lottery", "password", "otp", "police", 
+                "cbi", "rbi", "arrest", "fedex", "customs", "parcel", "seized"
             ]
         }
 
@@ -36,68 +59,93 @@ class IntelligenceExtractor:
             "suspiciousKeywords": [],
             "ifscCodes": [],
             "panNumbers": [],
-            "cryptoWallets": []
+            "cryptoWallets": [],
+            "cardNumbers": [],
+            "aadhaarNumbers": [],
+            "emails": []
         }
 
-        # Extract UPI IDs first (to exclude from other patterns)
-        results["upiIds"] = list(set(self._patterns["upi_id"].findall(text)))
+        # 1. Extract UPI IDs (exclude common email domains)
+        upi_matches = self._patterns["upi_id"].findall(text)
+        # Filter out emails - UPI IDs don't have .com, .in, .org etc
+        email_domains = ['.com', '.in', '.org', '.net', '.co', '.io', '.edu', '.gov']
+        upi_ids = []
+        for upi in upi_matches:
+            if not any(upi.lower().endswith(domain) for domain in email_domains):
+                upi_ids.append(upi.lower())
+        results["upiIds"] = list(set(upi_ids))
 
-        # Extract Phone Numbers - supports country codes like +91, +1, +44, etc.
+        # 2. Extract Emails
+        results["emails"] = list(set(self._patterns["email"].findall(text)))
+
+        # 3. Extract Phone Numbers with deduplication
         phone_matches = self._patterns["phone_number"].findall(text)
-        
-        # Deduplicate: if both "+919876543210" and "9876543210" exist, keep only ONE
-        # Prefer the version WITH country code, otherwise keep the plain number
-        seen_base_numbers = {}  # base_number -> full_match
+        seen_base_numbers = {}
         for phone in phone_matches:
-            # Get base number (last 10 digits)
             clean = re.sub(r'[\+\-\s]', '', phone)
             base_number = clean[-10:] if len(clean) >= 10 else clean
-            
-            # If we haven't seen this base number, or current has country code (prefer it)
             if base_number not in seen_base_numbers:
                 seen_base_numbers[base_number] = phone
             elif phone.startswith('+'):
-                # Prefer version with country code
                 seen_base_numbers[base_number] = phone
-        
         results["phoneNumbers"] = list(seen_base_numbers.values())
-        normalized_phones = set(seen_base_numbers.keys())
+        phone_digits = set(seen_base_numbers.keys())
 
-        # Extract Bank Accounts - but EXCLUDE phone numbers
-        # Bank accounts are typically 11-18 digits, phone numbers are exactly 10 digits starting with 6-9
-        all_numbers = list(set(self._patterns["bank_account"].findall(text)))
+        # 4. Extract Card Numbers (16 digits)
+        card_matches = self._patterns["card_number"].findall(text)
+        card_numbers = [re.sub(r'[\s\-]', '', c) for c in card_matches]
+        results["cardNumbers"] = list(set(card_numbers))
+        card_digits = set(card_numbers)
+
+        # 5. Extract Aadhaar Numbers (12 digits)
+        aadhaar_matches = self._patterns["aadhaar"].findall(text)
+        aadhaar_numbers = [re.sub(r'\s', '', a) for a in aadhaar_matches]
+        # Filter: must be exactly 12 digits and not look like phone
+        valid_aadhaar = []
+        for num in aadhaar_numbers:
+            if len(num) == 12 and num not in phone_digits and num not in card_digits:
+                # Aadhaar doesn't start with 0 or 1
+                if num[0] not in '01':
+                    valid_aadhaar.append(num)
+        results["aadhaarNumbers"] = list(set(valid_aadhaar))
+        aadhaar_digits = set(valid_aadhaar)
+
+        # 6. Extract Bank Accounts (9-18 digits, excluding phone/card/aadhaar)
+        all_numbers = self._patterns["bank_account"].findall(text)
         bank_accounts = []
         for num in all_numbers:
-            # Skip if this is a phone number (10 digits starting with 6-9)
+            # Skip phone numbers (10 digits starting with 6-9)
             if len(num) == 10 and num[0] in '6789':
                 continue
-            # Skip if it matches a normalized phone number
-            if num in normalized_phones:
+            # Skip if already identified as phone
+            if num in phone_digits:
                 continue
-            # Skip very short numbers that could be OTPs or PINs
-            if len(num) < 11:
+            # Skip if it's a card number (16 digits)
+            if len(num) == 16 and num in card_digits:
                 continue
+            # Skip if it's aadhaar (12 digits)
+            if len(num) == 12 and num in aadhaar_digits:
+                continue
+            # Skip OTPs/PINs (4-6 digits) - we only capture 9+ anyway
+            # Valid bank account
             bank_accounts.append(num)
-        results["bankAccounts"] = bank_accounts
+        results["bankAccounts"] = list(set(bank_accounts))
 
-        # Extract IFSC Codes
-        results["ifscCodes"] = list(set(self._patterns["ifsc_code"].findall(text)))
+        # 7. Extract IFSC Codes
+        results["ifscCodes"] = list(set([c.upper() for c in self._patterns["ifsc_code"].findall(text)]))
 
-        # Extract PAN Numbers
-        results["panNumbers"] = list(set(self._patterns["pan_card"].findall(text)))
+        # 8. Extract PAN Numbers
+        results["panNumbers"] = list(set([p.upper() for p in self._patterns["pan_card"].findall(text)]))
         
-        # Extract Crypto Wallets
-        results["cryptoWallets"] = list(set([m for m in self._patterns["crypto_wallet"].findall(text)]))
+        # 9. Extract Crypto Wallets
+        results["cryptoWallets"] = list(set(self._patterns["crypto_wallet"].findall(text)))
 
-        # Extract URLs
+        # 10. Extract URLs (phishing links)
         results["phishingLinks"] = list(set(self._patterns["url"].findall(text)))
 
-        # Extract Suspicious Keywords
+        # 11. Extract Suspicious Keywords
         lower_text = text.lower()
-        found_keywords = [
-            kw for kw in self._patterns["suspicious_keywords"] 
-            if kw in lower_text
-        ]
+        found_keywords = [kw for kw in self._patterns["suspicious_keywords"] if kw in lower_text]
         results["suspiciousKeywords"] = list(set(found_keywords))
 
         return results
@@ -109,6 +157,6 @@ class IntelligenceExtractor:
         """
         for key in current:
             if key in new_data:
-                # Combine lists and remove duplicates
                 current[key] = list(set(current[key] + new_data[key]))
         return current
+
