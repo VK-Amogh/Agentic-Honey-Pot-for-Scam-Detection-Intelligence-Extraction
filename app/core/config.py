@@ -15,24 +15,25 @@ class Settings:
     # Security
     API_SECRET_KEY: str = os.getenv("API_SECRET_KEY", "default-insecure-key-change-me")
     
-    # GROQ API Keys - supports up to 4 keys for rotation
+    # GROQ API Keys - supports up to 8 keys for load balancing
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY")
     GROQ_API_KEY_2: str = os.getenv("GROQ_API_KEY_2")
     GROQ_API_KEY_3: str = os.getenv("GROQ_API_KEY_3")
     GROQ_API_KEY_4: str = os.getenv("GROQ_API_KEY_4")
+    GROQ_API_KEY_5: str = os.getenv("GROQ_API_KEY_5")
+    GROQ_API_KEY_6: str = os.getenv("GROQ_API_KEY_6")
+    GROQ_API_KEY_7: str = os.getenv("GROQ_API_KEY_7")
+    GROQ_API_KEY_8: str = os.getenv("GROQ_API_KEY_8")
     
     @property
     def GROQ_API_KEYS(self) -> list:
         """Returns list of all available GROQ API keys."""
         keys = []
-        if self.GROQ_API_KEY:
-            keys.append(self.GROQ_API_KEY)
-        if self.GROQ_API_KEY_2:
-            keys.append(self.GROQ_API_KEY_2)
-        if self.GROQ_API_KEY_3:
-            keys.append(self.GROQ_API_KEY_3)
-        if self.GROQ_API_KEY_4:
-            keys.append(self.GROQ_API_KEY_4)
+        for attr in ['GROQ_API_KEY', 'GROQ_API_KEY_2', 'GROQ_API_KEY_3', 'GROQ_API_KEY_4',
+                     'GROQ_API_KEY_5', 'GROQ_API_KEY_6', 'GROQ_API_KEY_7', 'GROQ_API_KEY_8']:
+            key = getattr(self, attr, None)
+            if key:
+                keys.append(key)
         return keys
     
     # External Services

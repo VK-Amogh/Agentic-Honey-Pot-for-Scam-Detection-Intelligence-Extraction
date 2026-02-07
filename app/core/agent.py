@@ -20,20 +20,25 @@ class AgentPersona:
             logger.info(f"Initialized {len(self.clients)} GROQ clients for key rotation")
     
     def _get_next_client(self):
-        """Rotate to next API key."""
+        """Rotate to next API key (proactive round-robin)."""
         if not self.clients:
             return None
         self.current_key_index = (self.current_key_index + 1) % len(self.clients)
         return self.clients[self.current_key_index]
     
     def _call_with_rotation(self, messages, temperature=0.7, max_tokens=100):
-        """Try all API keys until one succeeds."""
+        """Proactive round-robin: rotate key first, then retry all on failure."""
         if not self.clients:
             return None
-            
+        
+        # Proactive rotation - distribute load before trying
+        start_index = (self.current_key_index + 1) % len(self.clients)
+        self.current_key_index = start_index
+        
         last_error = None
         for attempt in range(len(self.clients)):
-            client = self.clients[(self.current_key_index + attempt) % len(self.clients)]
+            client_index = (start_index + attempt) % len(self.clients)
+            client = self.clients[client_index]
             try:
                 completion = client.chat.completions.create(
                     model=self.model_name,
@@ -41,12 +46,13 @@ class AgentPersona:
                     temperature=temperature,
                     max_tokens=max_tokens
                 )
-                # Success - update index for next call
-                self.current_key_index = (self.current_key_index + attempt) % len(self.clients)
+                # Update index to successful client for logging
+                self.current_key_index = client_index
+                logger.debug(f"GROQ call succeeded with key {client_index + 1}/{len(self.clients)}")
                 return completion
             except Exception as e:
                 last_error = e
-                logger.warning(f"GROQ key {attempt+1}/{len(self.clients)} failed: {str(e)[:50]}")
+                logger.warning(f"GROQ key {client_index + 1}/{len(self.clients)} failed: {str(e)[:50]}")
                 continue
         
         raise last_error if last_error else Exception("All GROQ keys failed")

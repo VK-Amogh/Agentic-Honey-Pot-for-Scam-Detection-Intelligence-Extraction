@@ -28,12 +28,17 @@ class ScamDetector:
             self.use_llm = False
     
     def _call_with_rotation(self, messages):
-        """Try all API keys until one succeeds."""
+        """Proactive round-robin: rotate key first, then retry all on failure."""
         if not self.clients:
             return None
-            
+        
+        # Proactive rotation - distribute load before trying
+        start_index = (self.current_key_index + 1) % len(self.clients)
+        self.current_key_index = start_index
+        
         for attempt in range(len(self.clients)):
-            client = self.clients[(self.current_key_index + attempt) % len(self.clients)]
+            client_index = (start_index + attempt) % len(self.clients)
+            client = self.clients[client_index]
             try:
                 completion = client.chat.completions.create(
                     model=self.model_name,
@@ -41,10 +46,11 @@ class ScamDetector:
                     temperature=0.3,
                     max_tokens=100
                 )
-                self.current_key_index = (self.current_key_index + attempt) % len(self.clients)
+                self.current_key_index = client_index
+                logger.debug(f"Detector: GROQ call succeeded with key {client_index + 1}/{len(self.clients)}")
                 return completion
             except Exception as e:
-                logger.warning(f"Detector: GROQ key {attempt+1} failed: {str(e)[:50]}")
+                logger.warning(f"Detector: GROQ key {client_index + 1}/{len(self.clients)} failed: {str(e)[:50]}")
                 continue
         return None
 
