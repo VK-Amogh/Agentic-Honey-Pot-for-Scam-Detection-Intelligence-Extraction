@@ -235,56 +235,34 @@ class AgentPersona:
 
     def get_agent_notes(self, session_id: str, history: List[Dict] = None) -> str:
         """
-        Generates a detailed summary of the agent's behavior using LLM.
-        Uses round-robin key rotation for load balancing.
+        Generates a summary of the agent's behavior.
+        Uses fast static template to avoid extra LLM calls and maintain speed.
         """
         if not history:
             return f"Agent engaged scammer in session {session_id}. Used confusion tactics to extract information."
         
-        if not self.clients:
-            # Fallback to static template if no API keys
-            msg_count = len(history)
-            if msg_count >= 5:
-                return f"Agent successfully engaged scammer over {msg_count} messages. Used elderly persona with confusion tactics to waste scammer's time and extract contact details."
-            elif msg_count >= 3:
-                return f"Agent engaged scammer for {msg_count} messages. Maintained believable persona while asking for scammer's payment details."
-            else:
-                return f"Agent initiated engagement with scammer. Session {session_id}."
+        msg_count = len(history)
         
-        try:
-            # Build conversation context
-            conversation = ""
-            for msg in history:
-                if isinstance(msg, dict):
-                    sender = msg.get("sender", "unknown")
-                    text = msg.get("text", "")
-                else:
-                    sender = getattr(msg, "sender", "unknown")
-                    text = getattr(msg, "text", "")
-                conversation += f"{sender}: {text}\n"
-            
-            prompt = (
-                f"Analyze this honeypot agent conversation and generate a detailed summary.\n\n"
-                f"CONVERSATION:\n{conversation}\n\n"
-                f"Generate a 2-3 sentence summary covering:\n"
-                f"1. How the agent engaged the scammer (tactics used)\n"
-                f"2. What intelligence was extracted (UPI IDs, phone numbers, bank details, etc.)\n"
-                f"3. How effective the engagement was\n\n"
-                f"Be specific and factual. Mention exact details if present in the conversation."
-            )
-            
-            messages = [{"role": "user", "content": prompt}]
-            
-            # Use round-robin rotation for this call too
-            completion = self._call_with_rotation(messages, temperature=0.3, max_tokens=200)
-            
-            if completion:
-                return completion.choices[0].message.content.strip()
-            else:
-                # Fallback
-                return f"Agent engaged scammer over {len(history)} messages using elderly persona tactics."
-                
-        except Exception as e:
-            logger.warning(f"LLM agent notes failed: {str(e)[:50]}, using fallback")
-            return f"Agent engaged scammer over {len(history)} messages. Session {session_id}."
+        # Analyze conversation for extracted info
+        extracted_info = []
+        for msg in history:
+            text = msg.get("text", "") if isinstance(msg, dict) else getattr(msg, "text", "")
+            text_lower = text.lower()
+            # Check for common intelligence indicators
+            if "@" in text and not text.startswith("@"):
+                extracted_info.append("UPI ID")
+            if any(x in text_lower for x in ["upi", "paytm", "phonepe", "gpay"]):
+                extracted_info.append("payment info")
+            if any(char.isdigit() for char in text) and len([c for c in text if c.isdigit()]) >= 10:
+                extracted_info.append("phone/account number")
+        
+        extracted_info = list(set(extracted_info))
+        info_str = f" Extracted: {', '.join(extracted_info)}." if extracted_info else ""
+        
+        if msg_count >= 5:
+            return f"Agent successfully engaged scammer over {msg_count} messages. Used elderly persona with confusion tactics to waste scammer's time and extract contact details.{info_str}"
+        elif msg_count >= 3:
+            return f"Agent engaged scammer for {msg_count} messages. Maintained believable persona while asking for scammer's payment details.{info_str}"
+        else:
+            return f"Agent initiated engagement with scammer. Session {session_id}.{info_str}"
 
