@@ -38,14 +38,36 @@ class IntelligenceExtractor:
             "cryptoWallets": []
         }
 
-        # Extract UPI IDs
+        # Extract UPI IDs first (to exclude from other patterns)
         results["upiIds"] = list(set(self._patterns["upi_id"].findall(text)))
 
-        # Extract Phone Numbers
-        results["phoneNumbers"] = list(set(self._patterns["phone_number"].findall(text)))
+        # Extract Phone Numbers - 10 digits starting with 6-9 (Indian format)
+        phone_matches = list(set(self._patterns["phone_number"].findall(text)))
+        # Normalize phone numbers (remove +91 prefix for comparison)
+        normalized_phones = set()
+        for phone in phone_matches:
+            clean_phone = re.sub(r'[\+\-\s]', '', phone)
+            if clean_phone.startswith('91') and len(clean_phone) == 12:
+                clean_phone = clean_phone[2:]  # Remove 91 prefix
+            normalized_phones.add(clean_phone)
+        results["phoneNumbers"] = list(set(phone_matches))
 
-        # Extract Bank Accounts (Filter out timestamps/OTPs by length logic if needed, but keeping broad for now)
-        results["bankAccounts"] = list(set(self._patterns["bank_account"].findall(text)))
+        # Extract Bank Accounts - but EXCLUDE phone numbers
+        # Bank accounts are typically 11-18 digits, phone numbers are exactly 10 digits starting with 6-9
+        all_numbers = list(set(self._patterns["bank_account"].findall(text)))
+        bank_accounts = []
+        for num in all_numbers:
+            # Skip if this is a phone number (10 digits starting with 6-9)
+            if len(num) == 10 and num[0] in '6789':
+                continue
+            # Skip if it matches a normalized phone number
+            if num in normalized_phones:
+                continue
+            # Skip very short numbers that could be OTPs or PINs
+            if len(num) < 11:
+                continue
+            bank_accounts.append(num)
+        results["bankAccounts"] = bank_accounts
 
         # Extract IFSC Codes
         results["ifscCodes"] = list(set(self._patterns["ifsc_code"].findall(text)))
