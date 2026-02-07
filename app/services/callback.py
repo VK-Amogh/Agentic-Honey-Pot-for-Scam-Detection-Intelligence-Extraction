@@ -28,8 +28,8 @@ class CallbackService:
         try:
             logger.info(f"Sending final result to {endpoint} for session {payload.get('sessionId')}")
             
-            # Log pretty-printed JSON for viewing
-            logger.debug(f"Payload:\n{json.dumps(payload, indent=2, ensure_ascii=False)}")
+            # Log compact JSON for viewing (arrays on single line)
+            logger.debug(f"Payload: {json.dumps(payload, separators=(',', ':'))}")
             
             response = requests.post(
                 endpoint,
